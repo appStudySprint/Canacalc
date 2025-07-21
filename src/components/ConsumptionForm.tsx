@@ -31,7 +31,8 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     handleSubmit,
     formState: { errors },
     watch,
-    setValue
+    setValue,
+    reset
   } = useForm<ConsumptionFormData>({
     resolver: zodResolver(consumptionSchema),
     defaultValues: {
@@ -45,9 +46,12 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
   const onFormSubmit = (data: ConsumptionFormData) => {
     const consumption: Consumption = {
+      id: '',
+      profileId: '',
       amount: data.amount,
       method: data.method,
-      timestamp: new Date(data.timestamp)
+      timestamp: new Date(data.timestamp),
+      createdAt: new Date()
     };
     
     onSubmit(consumption);
@@ -56,6 +60,7 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     // Reset form after submission
     setTimeout(() => {
       setIsSubmitted(false);
+      reset(); // Reset all form fields
     }, 2000);
   };
 
@@ -80,8 +85,9 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
             step="0.01"
             min="0.01"
             max="10"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="ios-input w-full px-3 py-2"
             placeholder="0.1"
+            onWheel={(e) => (e.target as HTMLInputElement).blur()}
           />
           <div className="absolute inset-y-0 right-0 flex items-center pr-3">
             <span className="text-gray-500 text-sm">g</span>
@@ -103,7 +109,7 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
         <select
           {...register('method')}
           id="method"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          className="ios-select w-full px-3 py-2"
         >
           <option value="smoked">Geraucht (Joint, Bong, etc.)</option>
           <option value="oral">Oral (Essen, Tinktur, etc.)</option>
@@ -127,7 +133,7 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               {...register('timestamp')}
               type="datetime-local"
               id="timestamp"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="ios-input w-full px-3 py-2"
               onChange={handleDateChange}
             />
           </div>
@@ -166,7 +172,7 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 setValue('timestamp', isoString);
                 setSelectedDate(date);
               }}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+              className="ios-button px-4 py-2 text-sm"
             >
               {option.label}
             </button>
@@ -177,7 +183,8 @@ export default function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+        className="ios-button w-full py-3 px-4"
+        style={{ background: '#34c759' }}
       >
         {isSubmitted ? 'Konsum eingetragen ✓' : 'Konsum eintragen'}
       </button>

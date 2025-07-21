@@ -73,6 +73,23 @@ export function calculateWaitTime(
 }
 
 /**
+ * Calculate time to reach 2.5 ng/mL threshold (informational only)
+ * This is closer to the legal limit but NOT recommended for driving
+ */
+export function calculateInformationalTime(
+  age: number,
+  weight: number,
+  frequency: 'occasional' | 'regular' | 'chronic',
+  amount: number,
+  method: 'smoked' | 'oral' = 'smoked'
+): number {
+  // Use the same calculation but with a 0.6 multiplier for 2.5 ng/mL threshold
+  // This is approximately 60% of the time needed for 0.1 ng/mL
+  const conservativeTime = calculateWaitTime(age, weight, frequency, amount, method);
+  return Math.ceil(conservativeTime * 0.6);
+}
+
+/**
  * Get frequency description in German
  */
 export function getFrequencyDescription(frequency: 'occasional' | 'regular' | 'chronic'): string {

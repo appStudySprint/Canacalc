@@ -6,8 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Profile } from '@/types';
 import { getFrequencyDescription, getMethodDescription } from '@/lib/thcCalculator';
+import { StorageManager } from '@/lib/storage';
 
 const profileSchema = z.object({
+  name: z.string().min(2).max(50),
   age: z.number().min(18).max(100),
   weight: z.number().min(40).max(200),
   frequency: z.enum(['occasional', 'regular', 'chronic']),
@@ -31,6 +33,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
+      name: '',
       age: 25,
       weight: 70,
       frequency: 'occasional',
@@ -42,12 +45,41 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
   const watchedMethod = watch('method');
 
   const onFormSubmit = (data: ProfileFormData) => {
-    onSubmit(data);
+    const profile: Profile = {
+      id: StorageManager.generateId(),
+      name: data.name,
+      age: data.age,
+      weight: data.weight,
+      frequency: data.frequency,
+      method: data.method,
+      createdAt: new Date()
+    };
+    onSubmit(profile);
     setIsSubmitted(true);
   };
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+      {/* Name Input */}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          Name
+        </label>
+        <input
+          {...register('name')}
+          type="text"
+          id="name"
+          className="ios-input w-full px-3 py-2"
+          placeholder="Ihr Name"
+        />
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+        )}
+        <p className="mt-1 text-xs text-gray-500">
+          Geben Sie Ihren Namen ein (für mehrere Nutzer auf dem gleichen Gerät)
+        </p>
+      </div>
+
       {/* Age Input */}
       <div>
         <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
@@ -57,8 +89,9 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
           {...register('age', { valueAsNumber: true })}
           type="number"
           id="age"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="ios-input w-full px-3 py-2"
           placeholder="25"
+          onWheel={(e) => (e.target as HTMLInputElement).blur()}
         />
         {errors.age && (
           <p className="mt-1 text-sm text-red-600">{errors.age.message}</p>
@@ -74,8 +107,9 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
           {...register('weight', { valueAsNumber: true })}
           type="number"
           id="weight"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="ios-input w-full px-3 py-2"
           placeholder="70"
+          onWheel={(e) => (e.target as HTMLInputElement).blur()}
         />
         {errors.weight && (
           <p className="mt-1 text-sm text-red-600">{errors.weight.message}</p>
@@ -90,7 +124,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
         <select
           {...register('frequency')}
           id="frequency"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="ios-select w-full px-3 py-2"
         >
           <option value="occasional">Gelegentlich (weniger als 1x pro Woche)</option>
           <option value="regular">Regelmäßig (2-4x pro Woche)</option>
@@ -112,7 +146,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
         <select
           {...register('method')}
           id="method"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="ios-select w-full px-3 py-2"
         >
           <option value="smoked">Geraucht (Joint, Bong, etc.)</option>
           <option value="oral">Oral (Essen, Tinktur, etc.)</option>
@@ -128,7 +162,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        className="ios-button w-full py-3 px-4"
       >
         {isSubmitted ? 'Profil gespeichert ✓' : 'Profil speichern'}
       </button>
